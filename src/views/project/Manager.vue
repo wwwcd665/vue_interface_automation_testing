@@ -1,22 +1,79 @@
 <script>
 import InterfaceList from "@/components/InterfaceLis.vue"
-import {mapMutations,mapState} from "vuex";
+import {mapState} from "vuex";
+import RequestInfo from "@/components/RequestInfo.vue"
+import ResponseInfo from "@/components/ResponseInfo.vue"
+import {ElMessage} from 'element-plus';
 
 export default {
   components: {
-    InterfaceList
+    InterfaceList,
+    RequestInfo,
+    ResponseInfo
   },
-  computed:{
-    ...mapState(['pro'])
+  computed: {
+    ...mapState(['pro', 'activationEnvInfo'])
   },
   methods: {
+    runDebugApi() {
+      //   判断请求地址是不是http开头的
+      if (this.debugAPIInfo.request_url.startsWith('http')) {
+        // 直接使用完整的请求路径
+      } else {
+        const requestData = {
+          "request_url": this.debugAPIInfo.request_url,
+          "request_method": this.debugAPIInfo.request_method,
+          "request_headers": this.debugAPIInfo.request_headers,
+          "request_params": this.debugAPIInfo.request_params,
+          "request_body": this.debugAPIInfo.request_body,
+          "request_pre_script": this.debugAPIInfo.request_pre_script,
+        }
+        // 使用系统内置的环境拼接路径
+        if (this.activationEnvInfo.envid) {
+          const requestData={
+            "envID": this.activationEnvInfo.envid,
+            "request_url": this.debugAPIInfo.request_url,
+            "request_method": this.debugAPIInfo.request_method,
+            "request_headers": this.debugAPIInfo.request_headers,
+            "request_params": this.debugAPIInfo.request_params,
+            "request_body": this.debugAPIInfo.request_body,
+            "request_pre_script": this.debugAPIInfo.request_pre_script,
+            "request_post_script": this.debugAPIInfo.request_post_script,
+          }
 
+        } else {
+
+          ElMessage.warning('请先选择一个环境')
+        }
+
+      }
+    }
+  },
+  data() {
+    return {
+      // 接口请求方法枚举值
+      apiMethods: [
+        {value: 'get', label: 'GET'},
+        {value: 'post', label: 'POST'},
+        {value: 'put', label: 'PUT'},
+        {value: 'delete', label: 'DELETE'}],
+      debugAPIInfo: {
+        request_method: 'get',
+        request_url: '',
+        request_headers: '',
+        request_params: '',
+        request_body: '',
+        request_pre_script: '',
+        request_post_script: '',
+      }
+    }
   }
 }
 </script>
 
 <template>
   <el-row :gutter="20" style="height: 100%">
+    <!--  左侧接口管理列表区域  -->
     <el-col :span="10">
       <div class="common-layout">
         <el-container>
@@ -27,7 +84,7 @@ export default {
               <el-tab-pane label="项目内部接口">
                 <InterfaceList :tabType="0"></InterfaceList>
               </el-tab-pane>
-              <el-tab-pane label="外部接口" >
+              <el-tab-pane label="外部接口">
                 <InterfaceList :tabType="1"></InterfaceList>
               </el-tab-pane>
             </el-tabs>
@@ -35,8 +92,40 @@ export default {
         </el-container>
       </div>
     </el-col>
+    <!--  右侧接口调试区域  -->
     <el-col :span="14">
       <div class="grid-content">
+        <el-container>
+          <el-header class="title">接口调试</el-header>
+          <el-divider style="margin: -5px 0"/>
+          <el-main>
+            <el-input
+                v-model="debugAPIInfo.request_url"
+                style="max-width: 800px"
+                placeholder="输入接口地址"
+            >
+              <template #prepend>
+                <el-select
+                    v-model="debugAPIInfo.request_method"
+                    placeholder="请求方法"
+                    size="large"
+                    style="width: 160px"
+                >
+                  <el-option
+                      v-for="item in apiMethods"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.value"
+                  />
+                </el-select>
+              </template>
+            </el-input>
+            <el-button type="success" size="large" style="background: #30e3ca;color: black " @click="runDebugApi">运行
+            </el-button>
+          </el-main>
+        </el-container>
+        <RequestInfo :debugAPIInfo="debugAPIInfo" @update:debugAPIInfo="debugAPIInfo = $event"></RequestInfo>
+        <ResponseInfo></ResponseInfo>
       </div>
     </el-col>
 

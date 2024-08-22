@@ -40,6 +40,10 @@ export default createStore({
             state.activationEnvInfo = envInfo
             localStorage.setItem('envInfo', JSON.stringify(envInfo));
         },
+        delActivationEnv(state){
+            state.activationEnvInfo = {}
+            localStorage.removeItem('envInfo');
+        }
 
     },
     // 异步请求

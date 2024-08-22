@@ -44,6 +44,9 @@ export default {
         this.options = resp.data.data
       })
     },
+    clearEnvList(){
+      this.$store.commit("delActivationEnv", {})
+    },
     activationEnv(value){
       this.$store.commit("activationEnv", value)
     }
@@ -90,7 +93,7 @@ export default {
           </el-col>
           <el-col :span="11">
             <div class="env_select">
-              <el-select v-model="value"  @visible-change="this.queryEnvList()"  placeholder="选择执行环境" size="small" style="width: 180px">
+              <el-select v-model="value" clearable @clear="this.clearEnvList()"  @visible-change="this.queryEnvList()"  placeholder="选择执行环境" size="small" style="width: 180px">
                 <el-option
                     v-for="item in options"
                     :key="item.envid"
