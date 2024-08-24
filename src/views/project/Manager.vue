@@ -76,21 +76,10 @@ export default {
         {value: 'delete', label: 'DELETE'}],
       debugAPIInfo: {
         request_method: 'get',
-        request_url: 'user/login',
-        request_headers: '{\n' +
-            '    "Content-Length": "54",\n' +
-            '    "Content-Type": "application/json",\n' +
-            '    "User-Agent": "Apifox/1.0.0 (https://apifox.com)",\n' +
-            '    "Accept": "*/*",\n' +
-            '    "Host": "127.0.0.1:8809",\n' +
-            '    "Accept-Encoding": "gzip, deflate, br",\n' +
-            '    "Connection": "keep-alive"\n' +
-            '}',
+        request_url: '',
+        request_headers: '',
         request_params: '',
-        request_body: '{\n' +
-            '    "username": "admin",\n' +
-            '    "password": "123456"\n' +
-            '}',
+        request_body: '',
         request_pre_script: '',
         request_post_script: '',
       },

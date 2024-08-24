@@ -42,7 +42,7 @@ export default createStore({
         },
         delActivationEnv(state){
             state.activationEnvInfo = {}
-            localStorage.removeItem('envInfo');
+            this.values=localStorage.removeItem('envInfo');
         }
 
     },

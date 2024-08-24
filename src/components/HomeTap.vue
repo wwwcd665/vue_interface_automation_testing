@@ -13,7 +13,7 @@ export default {
       options: [
 
       ],
-      value: ''
+      activationEnvInfo: ''
     }
   },
   methods: {
@@ -53,6 +53,7 @@ export default {
   },
   created() {
     this.queryEnvList()
+    this.activationEnvInfo= JSON.parse(localStorage.getItem('envInfo')).envname
   }
 
 }
@@ -93,7 +94,7 @@ export default {
           </el-col>
           <el-col :span="11">
             <div class="env_select">
-              <el-select v-model="value" clearable @clear="this.clearEnvList()"  @visible-change="this.queryEnvList()"  placeholder="选择执行环境" size="small" style="width: 180px">
+              <el-select v-model="activationEnvInfo" clearable @clear="this.clearEnvList()"  @visible-change="this.queryEnvList()"  placeholder="选择执行环境" size="small" style="width: 180px">
                 <el-option
                     v-for="item in options"
                     :key="item.envid"
