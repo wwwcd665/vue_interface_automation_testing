@@ -75,6 +75,9 @@ export default {
     },
     updateApiList(params) {
         return http.put("/pro/interfacelist", params)
+    },
+    debug(params){
+        return http.post("/test/debug", params)
     }
 
 }
