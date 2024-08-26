@@ -25,7 +25,6 @@ export default {
           "request_headers": this.debugAPIInfo.request_headers,
           "request_params": this.debugAPIInfo.request_params,
           "request_body": this.debugAPIInfo.request_body,
-          "request_pre_script": this.debugAPIInfo.request_pre_script,
         }
         this.$api.debug(requestData).then(resp => {
           if (resp.data.code == 200) {
@@ -47,8 +46,6 @@ export default {
             "request_headers": this.debugAPIInfo.request_headers,
             "request_params": this.debugAPIInfo.request_params,
             "request_body": this.debugAPIInfo.request_body,
-            "request_pre_script": this.debugAPIInfo.request_pre_script,
-            "request_post_script": this.debugAPIInfo.request_post_script,
           }
           this.$api.debug(requestData).then(resp => {
             if (resp.data.code == 200) {
@@ -80,8 +77,8 @@ export default {
         request_headers: '',
         request_params: '',
         request_body: '',
-        request_pre_script: '',
-        request_post_script: '',
+        request_pre_script: '接口调试不支持',
+        request_post_script: '接口调试不支持',
       },
       debugResponseInfo:''
     }
