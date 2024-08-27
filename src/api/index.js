@@ -62,9 +62,9 @@ export default {
     },
     queryApiList(proid, apitype, interfeceID) {
         if (interfeceID) {
-            return http.get("/pro/interfacelist" + "?projectid=" + proid + "&interfacetype=" + apitype + "&interfacetid=" + interfeceID)
+            return http.get("/pro/interfacelist" + "?project_id=" + proid + "&interface_type=" + apitype + "&interfacet_id=" + interfeceID)
         } else {
-            return http.get("/pro/interfacelist" + "?projectid=" + proid + "&interfacetype=" + apitype)
+            return http.get("/pro/interfacelist" + "?project_id=" + proid + "&interface_type=" + apitype)
         }
     },
     addApiList(params) {
@@ -78,6 +78,9 @@ export default {
     },
     debug(params){
         return http.post("/test/debug", params)
+    },
+    addCase(params){
+        return http.post("/test/addcase", params)
     }
 
 }

@@ -9,6 +9,13 @@ import AddCaseForm from "@/components/AddCaseForm.vue";
 export default defineComponent({
   created() {
   },
+  watch: {
+    selectTestCase(newvalue, oldvalue) {
+      // 值更新，子组件的值对应更新
+      // this.$refs.addCaseForm.selectTestCase(newvalue)
+      console.log("newvalue:", newvalue)
+    }
+  },
   computed: {...mapState(['pro'])},
   components: {InterfaceList, CaseManager, AddCaseForm},
   data() {
@@ -16,12 +23,18 @@ export default defineComponent({
       interfaceListData: [],
       // 保存激活的接口类型标签页，0项目接口，1外部接口
       apiTypetags: '',
-      addCaseForApiInfo: {}
+      // 保存添加用例的接口信息
+      addCaseForApiInfo: {},
+      //   保存查看的用例信息
+      selectTestCase: {}
     }
   },
   methods: {
     getAddTestCaseAPIInfo(data) {
       this.addCaseForApiInfo = data
+    },
+    getSelectTestCase(data) {
+      this.selectTestCase = data
     }
   }
 })
@@ -37,10 +50,12 @@ export default defineComponent({
         <el-main>
           <el-tabs type="border-card">
             <el-tab-pane label="项目内部接口">
-              <CaseManager :tabType="0" @addTestCaseInfo="getAddTestCaseAPIInfo"></CaseManager>
+              <CaseManager :tabType="0" @addTestCaseInfo="getAddTestCaseAPIInfo"
+                           @selectTestCase="getSelectTestCase"></CaseManager>
             </el-tab-pane>
             <el-tab-pane label="外部接口">
-              <CaseManager :tabType="1" @addTestCaseInfo="getAddTestCaseAPIInfo"></CaseManager>
+              <CaseManager :tabType="1" @addTestCaseInfo="getAddTestCaseAPIInfo"
+                           @selectTestCase="getSelectTestCase"></CaseManager>
             </el-tab-pane>
           </el-tabs>
         </el-main>
@@ -49,7 +64,7 @@ export default defineComponent({
     <!-- 右侧用例详情区域  -->
     <el-col :span="18">
       <div class="case_info">
-        <AddCaseForm :addCaseForApiInfo="this.addCaseForApiInfo"></AddCaseForm>
+        <AddCaseForm :addCaseForApiInfo="this.addCaseForApiInfo" :selectTestCase="this.selectTestCase"></AddCaseForm>
       </div>
     </el-col>
   </el-row>

@@ -37,7 +37,6 @@ export default {
   },
   methods: {
     async queryApiList(proId, interfaceType) {
-      console.log('1111111', interfaceType);
       this.apiTypetags = interfaceType
       const res = await this.$api.queryApiList(proId, interfaceType)
       this.interfaceListData = res.data.data
@@ -52,8 +51,12 @@ export default {
       };
       return methodMap[method.toUpperCase()] || 'info'; // 默认为 'info'
     },
-    addTestCase(itme){
-      this.$emit('addTestCaseInfo',itme)
+    addTestCase(itme) {
+      this.$emit('addTestCaseInfo', itme)
+    },
+    selectTestCase(caseData){
+      console.log("caseData:", caseData)
+      this.$emit('selectTestCase', caseData)
     }
   },
   created() {
@@ -69,7 +72,7 @@ export default {
     <el-menu
         default-active="2"
         class="el-menu-demo"
-        style="width: 100%;"
+        style="width: 100%;max-height: calc(100vh - 110px)"
         v-for="item in interfaceListData"
     >
       <el-divider style="margin: 5px 0"/>
@@ -83,12 +86,14 @@ export default {
           <span>{{ item.interface_name }}</span>
         </template>
         <el-menu-item-group>
-          <el-divider style="margin: 5px 0"/>
-           <el-menu-item :index="item.interface_id">
-            <el-icon><List /></el-icon>
-            登录成功
-          </el-menu-item>
-          <el-divider style="margin: 5px 0"/>
+          <div v-for="case_data in item.cases" :key="case_data.case_id">
+            <el-menu-item :index="case_data.case_id" @click="selectTestCase(case_data)">
+              <el-icon>
+                <List/>
+              </el-icon>
+              {{ case_data.case_name }}
+            </el-menu-item>
+          </div>
           <el-menu-item index="1-1" @click="addTestCase(item)">
             <el-icon>
               <CirclePlusFilled/>

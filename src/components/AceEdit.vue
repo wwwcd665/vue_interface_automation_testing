@@ -1,8 +1,8 @@
 <template>
   <v-ace-editor :readOnly='readOnly' :options="editOption" v-model:value="dataEdit" :lang="lang" :theme="theme"
-                :style="{height: height}"/>
+                :style="{ height: height, width: width }"/>
   <el-button type="success" size="small" @click='formatJson' v-if="lang==='json'">格式化json</el-button>
-  <el-button type="success" size="small" @click='formatPython' v-if="lang==='python'">格式化python</el-button>
+  <el-button type="success" size="small" @click='formatPython' v-if="lang==='python'">python</el-button>
 </template>
 
 <script>
@@ -40,7 +40,7 @@ export default {
     },
     formatPython() {
       // 实现不出来
-      ElMessage.warning('这个功能实现不出来');
+      // ElMessage.warning('这个功能实现不出来');
     }
   },
   props: {
@@ -58,6 +58,9 @@ export default {
     },
     readOnly: {
       default: false
+    },
+    width:{
+      default: '100vw'
     }
   },
   emits: ['update:modelValue'],
