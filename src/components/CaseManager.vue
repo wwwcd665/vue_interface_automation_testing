@@ -43,6 +43,8 @@ export default {
 
     },
     getTagType(method) {
+      console.log("method:", method)
+
       const methodMap = {
         'GET': 'primary',
         'POST': 'success',
@@ -52,7 +54,16 @@ export default {
       return methodMap[method.toUpperCase()] || 'info'; // 默认为 'info'
     },
     addTestCase(itme) {
-      this.$emit('addTestCaseInfo', itme)
+      // 点击添加用例，向父组件传递接口信息
+      const data = {
+        "interface_id": itme.item.interface_id,
+        "interface_name": itme.item.interface_name,
+        "interface_method": itme.item.interface_method,
+        "interface_path": itme.item.interface_path,
+        "interface_type": itme.item.interface_type,
+        "project_id": itme.item.project_id
+      }
+      this.$emit('addTestCaseInfo', data)
     },
     selectTestCase(caseData){
       console.log("caseData:", caseData)
@@ -74,6 +85,7 @@ export default {
         class="el-menu-demo"
         style="width: 100%;max-height: calc(100vh - 110px)"
         v-for="item in interfaceListData"
+        :key="item.interface_id"
     >
       <el-divider style="margin: 5px 0"/>
       <el-sub-menu index="1">
@@ -94,7 +106,7 @@ export default {
               {{ case_data.case_name }}
             </el-menu-item>
           </div>
-          <el-menu-item index="1-1" @click="addTestCase(item)">
+          <el-menu-item index="1-1" @click="addTestCase({item})">
             <el-icon>
               <CirclePlusFilled/>
             </el-icon>

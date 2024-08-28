@@ -10,11 +10,11 @@ export default defineComponent({
   created() {
   },
   watch: {
-    selectTestCase(newvalue, oldvalue) {
-      // 值更新，子组件的值对应更新
-      // this.$refs.addCaseForm.selectTestCase(newvalue)
-      console.log("newvalue:", newvalue)
-    }
+    // selectTestCase(newvalue, oldvalue) {
+    //   // 值更新，子组件的值对应更新
+    //   // this.$refs.addCaseForm.selectTestCase(newvalue)
+    //   console.log("newvalue:", newvalue)
+    // }
   },
   computed: {...mapState(['pro'])},
   components: {InterfaceList, CaseManager, AddCaseForm},
@@ -24,16 +24,24 @@ export default defineComponent({
       // 保存激活的接口类型标签页，0项目接口，1外部接口
       apiTypetags: '',
       // 保存添加用例的接口信息
-      addCaseForApiInfo: {},
+      addCaseForApiInfo: {
+        'interface_path':''
+      },
       //   保存查看的用例信息
-      selectTestCase: {}
+      selectTestCase: {
+        'case_id':''
+      }
+
     }
   },
   methods: {
     getAddTestCaseAPIInfo(data) {
+      // this.selectTestCase = {
+      // }
       this.addCaseForApiInfo = data
     },
     getSelectTestCase(data) {
+      console.log("getSelectTestCase-data:", data)
       this.selectTestCase = data
     }
   }

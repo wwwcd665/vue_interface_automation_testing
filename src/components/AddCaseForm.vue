@@ -20,17 +20,25 @@ export default {
     activationEnvInfo(newValue, oldValue) {
       this.queryEnvInfo()
     },
+    // 监听选择添加接口按钮，用例输入框重新获取环境信息的请求头，其他信息清空
+    addCaseForApiInfo(newValue, oldValue) {
+      this.caseInfo = {
+        "header": this.envList.headers
+      }
+    },
     // 选择的用例发生变化时，重新获取用例数据
     selectTestCase(newvalue, oldvalue) {
-      this.caseInfo.caseName = this.selectTestCase.case_name
-      this.caseInfo.body = this.selectTestCase.body
-      this.caseInfo.params = this.selectTestCase.params
-      this.caseInfo.pro_script = this.selectTestCase.pro_script
-      this.caseInfo.pre_script = this.selectTestCase.pre_script
-      this.caseInfo.header = this.selectTestCase.headers
-      this.caseInfo.case_id = this.selectTestCase.case_id
-      this.addCaseForApiInfo.interface_path = this.selectTestCase.path
-      this.addCaseForApiInfo.interface_method= this.selectTestCase.method
+      if (newvalue.case_id !== "") {
+        this.caseInfo.caseName = this.selectTestCase.case_name
+        this.caseInfo.body = this.selectTestCase.body
+        this.caseInfo.params = this.selectTestCase.params
+        this.caseInfo.pro_script = this.selectTestCase.pro_script
+        this.caseInfo.pre_script = this.selectTestCase.pre_script
+        this.caseInfo.header = this.selectTestCase.headers
+        this.caseInfo.case_id = this.selectTestCase.case_id
+        this.addCaseForApiInfo.interface_path = this.selectTestCase.path
+        this.addCaseForApiInfo.interface_method = this.selectTestCase.method
+      }
     }
   },
   components: {
@@ -79,6 +87,13 @@ export default {
         }
       })
     },
+    operationCase() {
+      if (this.selectTestCase.case_id == "") {
+        this.saveCase()
+      } else {
+        this.updateCase()
+      }
+    },
     //   保存用例
     saveCase() {
       const data = {
@@ -93,19 +108,73 @@ export default {
         "path": this.addCaseForApiInfo.interface_path,
         "project_id": this.addCaseForApiInfo.project_id
       }
-      if (data.case_name == "") {
+      const jsonData = JSON.stringify(data, (key, value) => {
+        return value === undefined || value === null ? "" : value;
+      });
+      if (jsonData.case_name == "") {
         ElMessage.error("用例名称不能为空")
       } else {
-        this.$api.addCase(data).then(resp => {
+        this.$api.addCase(jsonData).then(resp => {
           if (resp.data.code == 200) {
             ElMessage.success("保存成功")
+            this.$router.go(0);
           } else {
             ElMessage.error("保存失败")
           }
         })
       }
+    },
+    updateCase() {
+      const data = {
+        "case_id": this.selectTestCase.case_id,
+        "interface_id": this.addCaseForApiInfo.interface_id,
+        "case_name": this.caseInfo.caseName,
+        "pre_script": this.caseInfo.pre_script,
+        "pro_script": this.caseInfo.pro_script,
+        "params": this.caseInfo.params,
+        "body": this.caseInfo.body,
+        "header": this.caseInfo.header,
+        "method": this.addCaseForApiInfo.interface_method,
+        "path": this.addCaseForApiInfo.interface_path,
+        "project_id": this.addCaseForApiInfo.project_id
+      }
+      const jsonData = JSON.stringify(data, (key, value) => {
+        return value === undefined || value === null ? "" : value;
+      });
+      if (jsonData.case_name == "") {
+        ElMessage.error("用例名称不能为空")
+      } else {
+        this.$api.updateCase(jsonData).then(resp => {
+          if (resp.data.code == 200) {
+            ElMessage.success("更新成功")
+            this.$router.go(0);
+          } else {
+            ElMessage.error("更新失败")
+          }
+        })
+      }
+    },
+    deleteCase() {
+      // 判断selectTestCase不为空
+      if (this.selectTestCase.case_id == "") {
+        ElMessage.warning("请选择要删除的用例")
+      } else {
+        const case_id = this.selectTestCase.case_id
+        this.$api.deleteCase(case_id).then(resp => {
+          if (resp.data.code == 200) {
+            ElMessage.success("删除成功")
+            //   删除成功，刷新页面
+            this.$router.go(0);
+
+          } else {
+            ElMessage.error("删除失败")
+          }
+        })
+      }
+
     }
-  },
+  }
+  ,
   created() {
     this.queryEnvInfo()
 
@@ -276,13 +345,13 @@ export default {
       </el-icon>
       运行
     </el-button>
-    <el-button type="success" style="margin-left: 10px" @click="saveCase">
+    <el-button type="success" style="margin-left: 10px" @click="operationCase">
       <el-icon>
         <Checked/>
       </el-icon>
       保存
     </el-button>
-    <el-button type="warning" style="margin-left: 10px">
+    <el-button type="warning" style="margin-left: 10px" @click="deleteCase">
       <el-icon>
         <DeleteFilled/>
       </el-icon>

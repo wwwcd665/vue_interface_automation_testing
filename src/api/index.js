@@ -80,7 +80,13 @@ export default {
         return http.post("/test/debug", params)
     },
     addCase(params){
-        return http.post("/test/addcase", params)
+        return http.post("/test/case", params)
+    },
+    deleteCase(params){
+        return http.delete("/test/case" + "?case_id=" + params)
+    },
+    updateCase(params){
+        return http.put("/test/case", params)
     }
 
 }
