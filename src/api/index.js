@@ -79,6 +79,9 @@ export default {
     debug(params){
         return http.post("/test/debug", params)
     },
+    queryCaseInfo(params){
+        return http.get("/test/case" + "?case_id=" + params)
+    },
     addCase(params){
         return http.post("/test/case", params)
     },
@@ -87,6 +90,9 @@ export default {
     },
     updateCase(params){
         return http.put("/test/case", params)
+    },
+    caseRun(params){
+        return http.post("/test/run", params)
     }
 
 }

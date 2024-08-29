@@ -57,17 +57,13 @@ export default {
       // 点击添加用例，向父组件传递接口信息
       const data = {
         "interface_id": itme.item.interface_id,
-        "interface_name": itme.item.interface_name,
-        "interface_method": itme.item.interface_method,
-        "interface_path": itme.item.interface_path,
         "interface_type": itme.item.interface_type,
         "project_id": itme.item.project_id
       }
       this.$emit('addTestCaseInfo', data)
     },
     selectTestCase(caseData){
-      console.log("caseData:", caseData)
-      this.$emit('selectTestCase', caseData)
+      this.$emit('selectTestCase', caseData.case_id)
     }
   },
   created() {

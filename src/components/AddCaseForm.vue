@@ -11,9 +11,25 @@ import AceEdit from "@/components/AceEdit.vue";
 import {ElMessage} from 'element-plus';
 
 export default {
-  props: ['addCaseForApiInfo', 'selectTestCase'],
+  props: ['selectTestCaseId', 'addCaseForApiId'],
   computed: {
-    ...mapState(['activationEnvInfo'])
+    ...mapState(['activationEnvInfo']),
+    formattedRunTime() {
+      return this.apiRunResult.run_time.toFixed(2);
+    },
+    formattedResponseHeaders() {
+      // 确保apiRunResult.response_headers存在且不是null
+      return this.apiRunResult.response_headers ? JSON.stringify(this.apiRunResult.response_headers, null, 2) : '';
+    },
+    formattedResponseBody() {
+      // 确保apiRunResult.response_headers存在且不是null
+      return this.apiRunResult.response_body ? JSON.stringify(this.apiRunResult.response_body, null, 2) : '';
+    },
+    apiRundRawer() {
+      this.apiRunResult = {
+        "run_time": 0
+      }
+    }
   },
   watch: {
     // 监听环境列表变化时，重新请求环境列表数据
@@ -21,24 +37,40 @@ export default {
       this.queryEnvInfo()
     },
     // 监听选择添加接口按钮，用例输入框重新获取环境信息的请求头，其他信息清空
-    addCaseForApiInfo(newValue, oldValue) {
-      this.caseInfo = {
-        "header": this.envList.headers
-      }
+    addCaseForApiId(newValue, oldValue) {
+      this.$api.queryApiList(this.addCaseForApiId.project_id, this.addCaseForApiId.interface_type, this.addCaseForApiId.interface_id).then(resp => {
+        if (resp.data.code == 200) {
+          const data = resp.data.data[0]
+          console.log("addCaseForApiId:", data)
+          this.caseInfo = {}
+          this.caseInfo.path = data.interface_path
+          this.caseInfo.method = data.interface_method
+          this.queryEnvInfo()
+          // 从父类组件重置selectTestCaseId的值
+          this.$emit('resetTestCaseId', '')
+        }
+      })
     },
     // 选择的用例发生变化时，重新获取用例数据
-    selectTestCase(newvalue, oldvalue) {
-      if (newvalue.case_id !== "") {
-        this.caseInfo.caseName = this.selectTestCase.case_name
-        this.caseInfo.body = this.selectTestCase.body
-        this.caseInfo.params = this.selectTestCase.params
-        this.caseInfo.pro_script = this.selectTestCase.pro_script
-        this.caseInfo.pre_script = this.selectTestCase.pre_script
-        this.caseInfo.header = this.selectTestCase.headers
-        this.caseInfo.case_id = this.selectTestCase.case_id
-        this.addCaseForApiInfo.interface_path = this.selectTestCase.path
-        this.addCaseForApiInfo.interface_method = this.selectTestCase.method
-      }
+    selectTestCaseId(newvalue, oldvalue) {
+      this.$api.queryCaseInfo(this.selectTestCaseId).then(resp => {
+        if (resp.data.code == 200) {
+          const data = resp.data.data
+          console.log("selectTestCaseId:", data)
+          this.caseInfo = {}
+          this.caseInfo.caseName = data.case_name
+          this.caseInfo.body = data.body
+          this.caseInfo.params = data.params
+          this.caseInfo.pro_script = data.pro_script
+          this.caseInfo.pre_script = data.pre_script
+          this.caseInfo.headers = data.headers
+          this.caseInfo.case_id = data.case_id
+          this.caseInfo.path = data.path
+          this.caseInfo.method = data.method
+        }
+      })
+
+
     }
   },
   components: {
@@ -53,7 +85,7 @@ export default {
   },
   data() {
     return {
-      openMenus: ['1', '2'],
+      openMenus: ['1', '2', '5', '6'],
       // 接口请求方法枚举值
       apiMethods: [
         {value: 'get', label: 'GET'},
@@ -70,25 +102,33 @@ export default {
         params: "",
         body: "",
         header: ""
-      }
+      },
+      // 接口执行结果抽屉
+      apiRundRawer: false,
+      //   接口运行结果
+      apiRunResult: {
+        run_time: 0
+      },
+      addCaseForApiInfo: {}
     }
   },
   methods: {
     // 获取环境信息
     queryEnvInfo() {
       const envID = this.activationEnvInfo.envid
-      console.log('envID:', envID)
       this.$api.queryEnvInfo(envID).then(resp => {
         if (resp.data.code == 200) {
           this.envList = resp.data.data
-          this.caseInfo.header = resp.data.data.headers
+          this.caseInfo.headers = resp.data.data.headers
         } else {
           ElMessage.error("获取环境信息异常")
         }
       })
     },
+    // 判断新增用例还是更新用例
     operationCase() {
-      if (this.selectTestCase.case_id == "") {
+      if (this.caseInfo.case_id == undefined || this.caseInfo.case_id == null || this.caseInfo.case_id == "") {
+        console.log("新增用例")
         this.saveCase()
       } else {
         this.updateCase()
@@ -97,17 +137,18 @@ export default {
     //   保存用例
     saveCase() {
       const data = {
-        "interface_id": this.addCaseForApiInfo.interface_id,
+        "interface_id": this.addCaseForApiId.interface_id,
         "case_name": this.caseInfo.caseName,
         "pre_script": this.caseInfo.pre_script,
         "pro_script": this.caseInfo.pro_script,
         "params": this.caseInfo.params,
         "body": this.caseInfo.body,
-        "header": this.caseInfo.header,
-        "method": this.addCaseForApiInfo.interface_method,
-        "path": this.addCaseForApiInfo.interface_path,
-        "project_id": this.addCaseForApiInfo.project_id
+        "headers": this.caseInfo.headers,
+        "method": this.caseInfo.method,
+        "path": this.caseInfo.path,
+        "project_id": this.addCaseForApiId.project_id
       }
+      // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(data, (key, value) => {
         return value === undefined || value === null ? "" : value;
       });
@@ -124,20 +165,22 @@ export default {
         })
       }
     },
+    // 更新用例
     updateCase() {
       const data = {
-        "case_id": this.selectTestCase.case_id,
-        "interface_id": this.addCaseForApiInfo.interface_id,
+        "case_id": this.caseInfo.case_id,
+        "interface_id": this.addCaseForApiId.interface_id,
         "case_name": this.caseInfo.caseName,
         "pre_script": this.caseInfo.pre_script,
         "pro_script": this.caseInfo.pro_script,
         "params": this.caseInfo.params,
         "body": this.caseInfo.body,
-        "header": this.caseInfo.header,
-        "method": this.addCaseForApiInfo.interface_method,
-        "path": this.addCaseForApiInfo.interface_path,
-        "project_id": this.addCaseForApiInfo.project_id
+        "headers": this.caseInfo.headers,
+        "method": this.caseInfo.method,
+        "path": this.caseInfo.path,
+        "project_id": this.addCaseForApiId.project_id
       }
+      // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(data, (key, value) => {
         return value === undefined || value === null ? "" : value;
       });
@@ -156,10 +199,10 @@ export default {
     },
     deleteCase() {
       // 判断selectTestCase不为空
-      if (this.selectTestCase.case_id == "") {
+      if (this.caseInfo.case_id == undefined || this.caseInfo.case_id == null || this.caseInfo.case_id == '') {
         ElMessage.warning("请选择要删除的用例")
       } else {
-        const case_id = this.selectTestCase.case_id
+        const case_id = this.caseInfo.case_id
         this.$api.deleteCase(case_id).then(resp => {
           if (resp.data.code == 200) {
             ElMessage.success("删除成功")
@@ -171,7 +214,60 @@ export default {
           }
         })
       }
+    },
+    // 判断执行类型，是调试还是执行用例
+    runCaseType() {
+      //todo 前后置脚本和断言的处理
+      if (this.caseInfo.case_id !== undefined && this.caseInfo.case_id !== null && this.caseInfo.case_id !== '') {
+        this.runCase()
+      } else {
+        this.debugrunCase()
+      }
+      this.apiRundRawer = true
+    },
+    // 调试用例
+    debugrunCase() {
+      const data = {
+        "url": this.envList.host + this.caseInfo.path,
+        "method": this.caseInfo.method,
+        "headers": this.caseInfo.header,
+        "body": this.caseInfo.body,
+        "params": this.caseInfo.params,
+        "pre_script": this.caseInfo.pre_script,
+        "pro_script": this.caseInfo.pro_script
+      }
+      const jsonData = JSON.stringify(data, (key, value) => {
+        return value === undefined || value === null ? "" : value;
+      });
+      this.$api.caseRun(jsonData).then(resp => {
+        if (resp.data.code == 200) {
+          this.apiRunResult = resp.data.data[0]
+        }
+      })
+    },
+    // 执行用例
+    runCase() {
 
+      const data = {
+        "case_id": this.caseInfo.case_id,
+        "interface_id": this.addCaseForApiId.interface_id,
+        "env_id": this.activationEnvInfo.envid
+      }
+      // 确保没有值的字段也会传递给后端
+      const jsonData = JSON.stringify(data, (key, value) => {
+        return value === undefined || value === null ? "" : value;
+      });
+      this.$api.caseRun(jsonData).then(resp => {
+        if (resp.data.code == 200) {
+          this.apiRunResult = resp.data.data[0]
+        }
+      })
+    },
+    // 执行时间
+    apiRundRawerColse() {
+      this.apiRunResult = {
+        run_time: 0
+      }
     }
   }
   ,
@@ -204,17 +300,17 @@ export default {
           <el-main style="margin-top: -25px">
             <el-input
                 style="max-width: 999px"
-                :placeholder="this.envList.host+this.addCaseForApiInfo.interface_path"
+                :placeholder="this.envList.host+this.caseInfo.path"
             >
               <template #prepend>
                 <el-select
-                    :placeholder="this.addCaseForApiInfo.interface_method"
+                    :placeholder="this.caseInfo.method"
                     size="large"
                     style="width: 160px"
                 >
                   <el-option
-                      :label="this.addCaseForApiInfo.interface_method"
-                      :value="this.addCaseForApiInfo.interface_method"
+                      :label="this.caseInfo.method"
+                      :value="this.caseInfo.method"
                   />
                 </el-select>
               </template>
@@ -273,7 +369,7 @@ export default {
         </template>
         <el-menu-item-group>
           <AceEdit style="height:250px"
-                   v-model="this.caseInfo.header"
+                   v-model="this.caseInfo.headers"
                    lang="json"
                    theme="chrome"
                    :readOnly='false'
@@ -339,7 +435,7 @@ export default {
   </div>
   <el-divider style="margin: 1px 0"/>
   <div class="button-container">
-    <el-button type="primary" style="margin-left: 10px">
+    <el-button type="primary" style="margin-left: 10px" @click="runCaseType">
       <el-icon>
         <Promotion/>
       </el-icon>
@@ -358,6 +454,38 @@ export default {
       删除
     </el-button>
   </div>
+
+  <!-- 接口执行结果抽屉 -->
+  <el-drawer v-model="apiRundRawer" title="接口执行结果" :with-header="true" @close="apiRundRawerColse">
+    <el-divider content-position="left">运行结果</el-divider>
+    <el-tag type="success" size="large" v-if="apiRunResult.response_result==='OK'">OK</el-tag>
+    <el-tag type="error" size="large" v-else>error</el-tag>
+    <el-divider content-position="left">运行时间</el-divider>
+    <el-input
+        v-model="formattedRunTime"
+        style="max-width: 600px"
+    >
+      <template #prepend>接口运行时间:秒</template>
+    </el-input>
+
+    <el-divider content-position="left">响应头</el-divider>
+    <AceEdit width="100%"
+             height="300px"
+             v-model="formattedResponseHeaders"
+             lang="json"
+             theme="chrome"
+             :readOnly='false'
+    ></AceEdit>
+    <el-divider content-position="left">响应体</el-divider>
+    <AceEdit width="100%"
+             height="300px"
+             v-model="formattedResponseBody"
+             lang="json"
+             theme="chrome"
+             :readOnly='false'
+    ></AceEdit>
+  </el-drawer>
+
 </template>
 
 <style scoped>

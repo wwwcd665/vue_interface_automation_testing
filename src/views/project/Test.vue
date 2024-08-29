@@ -24,12 +24,12 @@ export default defineComponent({
       // 保存激活的接口类型标签页，0项目接口，1外部接口
       apiTypetags: '',
       // 保存添加用例的接口信息
-      addCaseForApiInfo: {
-        'interface_path':''
+      addCaseForApiId: {
+
       },
       //   保存查看的用例信息
-      selectTestCase: {
-        'case_id':''
+      selectTestCaseId: {
+
       }
 
     }
@@ -37,12 +37,17 @@ export default defineComponent({
   methods: {
     getAddTestCaseAPIInfo(data) {
       // this.selectTestCase = {
+      //
       // }
-      this.addCaseForApiInfo = data
+      console.log("getAddTestCaseAPIInfo-data:", data)
+      this.addCaseForApiId = data
     },
     getSelectTestCase(data) {
       console.log("getSelectTestCase-data:", data)
-      this.selectTestCase = data
+      this.selectTestCaseId = data
+    },
+    resetTestCaseId(){
+      this.selectTestCaseId = ""
     }
   }
 })
@@ -72,7 +77,7 @@ export default defineComponent({
     <!-- 右侧用例详情区域  -->
     <el-col :span="18">
       <div class="case_info">
-        <AddCaseForm :addCaseForApiInfo="this.addCaseForApiInfo" :selectTestCase="this.selectTestCase"></AddCaseForm>
+        <AddCaseForm :selectTestCaseId="this.selectTestCaseId" :addCaseForApiId="this.addCaseForApiId" @resetTestCaseId="resetTestCaseId"></AddCaseForm>
       </div>
     </el-col>
   </el-row>
