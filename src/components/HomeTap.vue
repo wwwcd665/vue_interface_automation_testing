@@ -53,7 +53,13 @@ export default {
   },
   created() {
     this.queryEnvList()
-    this.activationEnvInfo= JSON.parse(localStorage.getItem('envInfo')).envname
+    try {
+      this.activationEnvInfo= JSON.parse(localStorage.getItem('envInfo')).envname
+    }
+    catch (e) {
+      console.log(e)
+    }
+
   }
 
 }
