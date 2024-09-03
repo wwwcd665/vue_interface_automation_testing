@@ -159,7 +159,11 @@ export default {
         variables: this.envInfo.variables,
         tool_func: this.envInfo.tool_func
       }
-      const resp = await this.$api.saveEnvInfo(params)
+        // 确保没有值的字段也会传递给后端
+      const jsonData = JSON.stringify(params, (key, value) => {
+        return value === undefined || value === null ? "" : value;
+      });
+      const resp = await this.$api.saveEnvInfo(jsonData)
       if (resp.data.code == 200) {
         ElMessage({
           message: '环境保存成功',
