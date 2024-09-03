@@ -1,5 +1,6 @@
 <script>
-import { VueDraggableNext } from 'vue-draggable-next'
+import {VueDraggableNext} from 'vue-draggable-next'
+import {ElMessage} from "element-plus";
 
 export default {
   components: {
@@ -10,10 +11,18 @@ export default {
       list: [
         {id: 1, name: 'Item 1'},
         {id: 2, name: 'Item 2'},
-        // ...
+
       ]
     };
   },
+  methods: {
+    onEnd(evt) {
+     ElMessage({
+       message: '拖动结束',
+       type: 'success',
+     })
+    }
+  }
 
 }
 </script>
@@ -73,12 +82,30 @@ export default {
         </el-button>
 
         <el-divider content-position="left" style="margin-top: 40px">场景步骤</el-divider>
-        <draggable v-model="list" :options="{ handle: '.handle' } " @start="onStart" @end="onEnd">
-        <div v-for="item in list" :key="item.id">
-          <span class="handle">☰</span>
-          {{ item.name }}
-        </div>
-        </draggable>
+        <el-button type="success" style="margin-left: 20px">
+          <el-icon>
+            <ZoomIn/>
+          </el-icon>
+          添加步骤
+        </el-button>
+        <el-main style="max-height: calc(100vh - 300px)">
+          <draggable v-model="list" :options="{ handle: '.handle' } " @start="onStart" @end="onEnd">
+
+            <div v-for="item in list" :key="item.id" class="case">
+              <el-menu
+              >
+                <el-menu-item :index="item.id">
+                  {{ item.name }}
+                  <div class="but">
+                    <el-button type="primary" size="small">编辑</el-button>
+                    <el-button type="danger" size="small">删除</el-button>
+                  </div>
+                </el-menu-item>
+              </el-menu>
+            </div>
+
+          </draggable>
+        </el-main>
       </div>
     </el-col>
   </el-row>
@@ -102,5 +129,19 @@ export default {
   font: 25px "微软雅黑";
   text-align: center;
   padding-top: 20px;
+}
+
+.case {
+  width: 100%;
+  //margin-left: 20px;
+}
+
+.but {
+  margin-left: 80%;
+  margin-top: -25px;
+}
+
+.el-menu-item {
+  border-bottom: 1px solid #30e3ca; /* 蓝色边框 */
 }
 </style>
