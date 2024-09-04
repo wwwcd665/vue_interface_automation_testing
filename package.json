@@ -18,7 +18,8 @@
     "vue-draggable-plus": "^0.5.3",
     "vue-router": "^4.0.3",
     "vue3-ace-editor": "^2.2.4",
-    "vuex": "^4.0.0"
+    "vuex": "^4.0.0",
+    "vxe-tree": "^0.2.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~5.0.0",

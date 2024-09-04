@@ -93,6 +93,19 @@ export default {
     },
     caseRun(params){
         return http.post("/test/run", params)
-    }
+    },
+    saveScene(params){
+        return http.post("/test/scene", params)
+    } ,
+    querySceneList(proid, sceneid ) {
+        if (sceneid) {
+            return http.get("/test/scene" + "?project_id=" + proid + "&scene_id=" + sceneid )
+        } else {
+            return http.get("/test/scene" + "?project_id=" + proid )
+        }
+    },
+    delScene(params){
+        return http.delete("/test/scene" + "?scene_id=" + params)
+    },
 
 }
