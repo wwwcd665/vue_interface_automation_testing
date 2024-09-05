@@ -107,5 +107,8 @@ export default {
     delScene(params){
         return http.delete("/test/scene" + "?scene_id=" + params)
     },
+    updateScene(params){
+        return http.put("/test/scene", params)
+    }
 
 }

@@ -1,30 +1,26 @@
 <template>
   <!-- 根元素div -->
   <div>
-    <!-- 下拉选择框，用于选择全选或取消 -->
-    <el-select v-model="selectAll" style="margin-bottom: 10px;" @change="handleSelectAllChange" placeholder="全选&取消" >
-      <el-option value="all" label="全部">全部</el-option>
-      <el-option value="none" label="取消">取消</el-option>
-    </el-select>
     <!-- 树形控件，用于展示和选择接口 -->
     <el-tree
-      ref="treeRef"
-      class="filter-tree"
-      :data="treeData"
-      node-key="interface_id"
-      highlight-current
-      default-expand-all
-      show-checkbox
-      :default-checked-keys="defaultCheckedKeys"
-      @check="handleCheck"
+        ref="treeRef"
+        class="filter-tree"
+        :data="treeData"
+        node-key="interface_id"
+        highlight-current
+        default-expand-all
+        show-checkbox
+        :default-checked-keys="defaultCheckedKeys"
+        @check="handleCheck"
     ></el-tree>
   </div>
+  <el-divider/>
+  <el-button type="success" @click="printCheckedNodes">确定</el-button>
 </template>
 
 <script>
-import { mapState } from "vuex"; // 从vuex中导入mapState函数
-import { ref, nextTick } from "vue"; // 从vue中导入ref和nextTick函数
-import { ElTree, ElSelect, ElOption } from "element-plus"; // 导入Element Plus组件
+import {mapState} from "vuex"; // 从vuex中导入mapState函数
+import {ElOption, ElSelect, ElTree} from "element-plus"; // 导入Element Plus组件
 
 export default {
   components: {
@@ -49,14 +45,7 @@ export default {
   computed: {
     // 映射vuex中的state
     ...mapState(["pro"]),
-    selectAll: {
-      get() {
-        return this.selectAllValue; // 获取全选下拉框的值
-      },
-      set(value) {
-        this.handleSelectAllChange(value); // 设置全选下拉框的值
-      },
-    },
+
   },
   created() {
     this.queryApiList(); // 组件创建时调用queryApiList方法获取数据
@@ -68,20 +57,9 @@ export default {
       this.interfaceListData = res.data.data; // 存储接口列表数据
       this.treeData = this.transformToTreeData(this.interfaceListData); // 转换数据为树形结构
     },
-    // 处理全选下拉框的值改变
-    handleSelectAllChange(value) {
-      if (value === "all") {
-        this.defaultCheckedKeys = this.getAllIds(this.treeData); // 全选时，获取所有节点的键值
-      } else {
-        this.defaultCheckedKeys = []; // 取消全选时，清空选中的节点键值
-        nextTick(() => {
-          this.$refs.treeRef.setCheckedKeys([]); // 清空树形控件选中的节点
-        });
-      }
-    },
     // 处理树形控件复选框状态改变的事件
     handleCheck(node, checked, indeterminate) {
-      console.log("1231231",node); // 打印节点信息和选中状态
+      console.log("1231231", node); // 打印节点信息和选中状态
     },
     // 递归获取所有节点的键值
     getAllIds(nodes) {
@@ -107,7 +85,29 @@ export default {
         };
       }).filter(item => item.children && item.children.length > 0); // 过滤掉没有子节点的项
     },
-  },
+    printCheckedNodes() {
+      // 获取树组件实例
+      const tree = this.$refs.treeRef;
+      // 只获取子节点的数据
+      const checkedNodes = tree.getCheckedNodes(true);
+      // 使用 getCheckedNodes 方法获取所有勾选的节点
+      // const checkedNodes = tree.getCheckedNodes();
+      // 发送数据
+      this.$emit('checkedNodes', checkedNodes);
+
+      // 清空所有勾选
+      // 清空 defaultCheckedKeys 以确保 Vue 重新渲染树组件
+      this.defaultCheckedKeys = [];
+
+      // 使用 nextTick 确保 DOM 更新完成后重新设置树数据
+      this.$nextTick(() => {
+        this.treeData = [...this.treeData]; // 强制 Vue 重新渲染树组件
+        tree.setCheckedKeys([]); // 再次尝试清空所有勾选
+      });
+
+
+    }
+  }
 };
 </script>
 
