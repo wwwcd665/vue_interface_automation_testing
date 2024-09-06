@@ -10,13 +10,14 @@ import AceEdit from "@/components/AceEdit.vue";
 import caseNameSVG from "@/assets/testcase/caseNameSVG.vue";
 import assertSVG from "@/assets/testcase/assertSVG.vue";
 import requestBodySVG from "@/assets/testcase/requestBodySVG.vue";
-
+import RunResult from "@/components/RunResult.vue"
 
 export default {
   components: {
     requestBodySVG, assertSVG, caseNameSVG, AceEdit, requestParamsSVG, apiInfoSVG, scriptSVG,
     draggable: VueDraggableNext,
     SelectionStep,
+    RunResult
 
   },
   computed: {
@@ -40,7 +41,12 @@ export default {
 
       // 编辑步骤
       editStepForm: {},
-      openMenus: ["1", "2", "6"]
+      openMenus: ["1", "2", "6"],
+
+      // 运行结果抽屉
+      apiRundRawer :false,
+      // 保存运行结果
+      runResult :{}
 
     };
   },
@@ -175,8 +181,6 @@ export default {
     // 接收选择的节点数据
     checkedNodes(data) {
       this.addStepDrawer = false
-      console.log("checkedNodes123123:", data);
-      //   case_id: 10, case_name: '接口1'
       //   遍历data，获取 case_id: 10, case_name: '接口1'，追加到scene_info.step列表中
       data.forEach(item => {
         // 创建一个新对象，将 item 的属性复制到新对象中
@@ -222,14 +226,14 @@ export default {
         const jsonData = JSON.stringify(data, (key, value) => {
           return value === undefined || value === null ? "" : value;
         });
-          this.$api.updateCase(jsonData).then(resp => {
-            if (resp.data.code == 200) {
-              ElMessage.success("更新成功")
-              this.$router.go(0);
-            } else {
-              ElMessage.error("更新失败")
-            }
-          })
+        this.$api.updateCase(jsonData).then(resp => {
+          if (resp.data.code == 200) {
+            ElMessage.success("更新成功")
+            this.$router.go(0);
+          } else {
+            ElMessage.error("更新失败")
+          }
+        })
       }).catch(() => {
             // 用户取消删除
             ElMessage({
@@ -239,9 +243,36 @@ export default {
           }
       )
     },
+    runScene() {
+      const data = {
+        env_id: this.activationEnvInfo.envid,
+        project_id: this.pro.project_id,
+        scene_id: this.scene_info.scene_id,
+        scene_name: this.scene_info.scene_name,
+        steps: this.scene_info.steps
+      }
+      // 确保没有值的字段也会传递给后端
+      const jsonData = JSON.stringify(data, (key, value) => {
+        return value === undefined || value === null ? "" : value;
+      });
+      this.$api.runScene(jsonData).then(resp => {
+        if (resp.data.code == 200) {
+          ElMessage({
+            message: '场景执行成功',
+            type: 'success',
+          });
+          this.runResult = resp.data.data
+          this.apiRundRawer = true
+        } else {
+          ElMessage({
+            message: resp.data.msg,
+            type: 'error',
+          });
+        }
+      })
+    }
+  },
 
-
-  }
 
 }
 </script>
@@ -298,7 +329,7 @@ export default {
           </el-icon>
           保存
         </el-button>
-        <el-button type="success">
+        <el-button type="success" @click="runScene">
           <el-icon>
             <Position/>
           </el-icon>
@@ -354,7 +385,7 @@ export default {
   </el-drawer>
 
   <!-- 编辑步骤抽屉 -->
-  <el-drawer v-model="editStepDrawer" :title="'编辑步骤-'+editStepForm.case_name" :with-header="true" >
+  <el-drawer v-model="editStepDrawer" :title="'编辑步骤-'+editStepForm.case_name" :with-header="true">
     <div style=" max-height: calc(100vh - 150px); overflow-y: auto;">
       <el-menu
           class="el-menu-demo"
@@ -523,6 +554,11 @@ export default {
       </el-button>
     </div>
   </el-drawer>
+
+  <!-- 运行结果抽屉 -->
+  <el-drawer v-model="apiRundRawer" title="执行结果" :with-header="true" width="20%">
+    <RunResult :runResult="runResult"></RunResult>
+  </el-drawer>
 </template>
 
 
@@ -548,7 +584,7 @@ export default {
 
 .case {
   width: 100%;
-//margin-left: 20px;
+  //margin-left: 20px;
 }
 
 .but {

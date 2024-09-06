@@ -109,6 +109,9 @@ export default {
     },
     updateScene(params){
         return http.put("/test/scene", params)
+    },
+    runScene(params){
+        return http.post("/test/runscene", params)
     }
 
 }

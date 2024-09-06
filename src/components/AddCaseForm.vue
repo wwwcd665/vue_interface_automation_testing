@@ -69,8 +69,6 @@ export default {
           this.caseInfo.method = data.method
         }
       })
-
-
     }
   },
   components: {
@@ -101,7 +99,7 @@ export default {
         pro_script: "",
         params: "",
         body: "",
-        header: ""
+        headers: ""
       },
       // 接口执行结果抽屉
       apiRundRawer: false,
