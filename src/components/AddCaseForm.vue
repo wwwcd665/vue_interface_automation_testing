@@ -11,7 +11,7 @@ import AceEdit from "@/components/AceEdit.vue";
 import {ElMessage} from 'element-plus';
 
 export default {
-  props: ['selectTestCaseId', 'addCaseForApiId'],
+  props: ['selectTestCaseId', 'addCaseForApiId', "init", "interface_id"],
   computed: {
     ...mapState(['activationEnvInfo']),
     formattedRunTime() {
@@ -67,6 +67,8 @@ export default {
           this.caseInfo.case_id = data.case_id
           this.caseInfo.path = data.path
           this.caseInfo.method = data.method
+          this.caseInfo.interface_id = data.interface_id
+          this.caseInfo.project_id = data.project_id
         }
       })
     }
@@ -107,7 +109,8 @@ export default {
       apiRunResult: {
         run_time: 0
       },
-      addCaseForApiInfo: {}
+      addCaseForApiInfo: {},
+      // addCaseForApiId: null
     }
   },
   methods: {
@@ -135,7 +138,7 @@ export default {
     //   保存用例
     saveCase() {
       const data = {
-        "interface_id": this.addCaseForApiId.interface_id,
+        "interface_id": this.addCaseForApiId?.interface_id || "",
         "case_name": this.caseInfo.caseName,
         "pre_script": this.caseInfo.pre_script,
         "pro_script": this.caseInfo.pro_script,
@@ -144,7 +147,11 @@ export default {
         "headers": this.caseInfo.headers,
         "method": this.caseInfo.method,
         "path": this.caseInfo.path,
-        "project_id": this.addCaseForApiId.project_id
+        "project_id": this.addCaseForApiId?.project_id ||""
+      }
+      if(this.init=='1'){
+        data.interface_id=this.caseInfo.interface_id
+        data.project_id = this.caseInfo.project_id
       }
       // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(data, (key, value) => {
@@ -167,7 +174,8 @@ export default {
     updateCase() {
       const data = {
         "case_id": this.caseInfo.case_id,
-        "interface_id": this.addCaseForApiId.interface_id,
+        // 若找不到值，则赋值空
+        "interface_id": this.addCaseForApiId?.interface_id || "",
         "case_name": this.caseInfo.caseName,
         "pre_script": this.caseInfo.pre_script,
         "pro_script": this.caseInfo.pro_script,
@@ -176,7 +184,11 @@ export default {
         "headers": this.caseInfo.headers,
         "method": this.caseInfo.method,
         "path": this.caseInfo.path,
-        "project_id": this.addCaseForApiId.project_id
+        "project_id": this.addCaseForApiId?.project_id ||""
+      }
+      if(this.init=='1'){
+        data.interface_id=this.caseInfo.interface_id
+        data.project_id = this.caseInfo.project_id
       }
       // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(data, (key, value) => {
@@ -245,11 +257,13 @@ export default {
     },
     // 执行用例
     runCase() {
-
       const data = {
         "case_id": this.caseInfo.case_id,
-        "interface_id": this.addCaseForApiId.interface_id,
+        "interface_id": this.addCaseForApiId?.interface_id || "",
         "env_id": this.activationEnvInfo.envid
+      }
+      if(this.init=='1'){
+        data.interface_id=this.caseInfo.interface_id
       }
       // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(data, (key, value) => {
@@ -266,12 +280,113 @@ export default {
       this.apiRunResult = {
         run_time: 0
       }
-    }
+    },
+    getToolFunc() {
+      //   获取工具函数
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + "# 调用工具函数" + "\n" +
+          "global_func.函数名"
+    },
+    getVariable() {
+      //   获取变量
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + "# 获取变量" + "\n" +
+          "variable=global_func.get_variable('变量名')"
+    },
+    setVariable() {
+      //   设置变量
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + "# 设置变量" + "\n" +
+          "global_func.set_variable('变量名','变量值')"
+    },
+    querySql() {
+      //   执行sql
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + " # db.连接名.execute_all(sql语句) " + "\n" +
+          "sql = \"SELECT count(*) as count FROM futureloan.member\"\n" +
+          "res = db.aliyun.execute_all(sql)"
+    },
+    jsonPathExtract() {
+      //   jsonpath提取
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + " #  jsonpath提取 " + "\n" +
+          "jsonpath_extract(res,'$.count')"
+    },
+    regexExtract() {
+      //   正则提取
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + " #  正则提取 " + "\n" +
+          "regex_extract(res,'$.count','count')"
+    },
+    statusCodeAssert() {
+      //   响应码断言
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + " #  响应码断言 " + "\n" +
+          "status_code_assert(res,200)"
+    },
+    responseBodyAssertEqual() {
+      //   响应体断言，相等
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + " #  响应体断言，相等 " + "\n" +
+          "response_body_assert_equal(res,'count')"
+    },
+    responseBodyAssertIn() {
+      //   响应体断言，包含
+      this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
+          + " #  响应体断言，包含 " + "\n" +
+          "response_body_assert_in(res,'count')"
+    },
+    getToolFunc2() {
+      //   前置脚本 获取工具函数
+      this.caseInfo.pre_script = this.caseInfo.pre_script + "\n"
+          + "# 调用工具函数" + "\n" +
+          "global_func.函数名"
+    },
+    getVariable2() {
+      //   前置脚本 获取变量
+      this.caseInfo.pre_script = this.caseInfo.pre_script + "\n"
+          + "# 获取变量" + "\n" +
+          "variable=global_func.get_variable('变量名')"
+    },
+    setVariable2() {
+      //   前置脚本 设置变量
+      this.caseInfo.pre_script = this.caseInfo.pre_script + "\n"
+          + "# 设置变量" + "\n" +
+          "global_func.set_variable('变量名','变量值')"
+    },
+    querySql2() {
+      //   前置脚本 执行sql
+      this.caseInfo.pre_script = this.caseInfo.pre_script + "\n"
+          + " # db.连接名.execute_all(sql语句) " + "\n" +
+          "sql = \"SELECT count(*) as count FROM futureloan.member\"\n" +
+          "res = db.aliyun.execute_all(sql)"
+    },
   }
   ,
   created() {
     this.queryEnvInfo()
-
+    // 针对场景页面编辑，需要初始化数据
+    if (this.init == "1") {
+      // this.addCaseForApiId = {}
+      this.$api.queryCaseInfo(this.selectTestCaseId).then(resp => {
+        if (resp.data.code == 200) {
+          const data = resp.data.data
+          console.log("selectTestCaseId:", data)
+          this.caseInfo = {}
+          this.caseInfo.caseName = data.case_name
+          this.caseInfo.body = data.body
+          this.caseInfo.params = data.params
+          this.caseInfo.pro_script = data.pro_script
+          this.caseInfo.pre_script = data.pre_script
+          this.caseInfo.headers = data.headers
+          this.caseInfo.case_id = data.case_id
+          this.caseInfo.path = data.path
+          this.caseInfo.method = data.method
+          this.caseInfo.interface_id = data.interface_id
+          this.caseInfo.project_id = data.project_id
+        }
+      })
+    }
 
   }
 }
@@ -353,7 +468,12 @@ export default {
                    theme="chrome"
                    :readOnly='false'
           ></AceEdit>
-          <div class="script_button"></div>
+          <div class="script_button">
+            <el-button type="primary" size="small" @click="getToolFunc2">调用工具函数</el-button>
+            <el-button type="primary" size="small" @click="getVariable2">获取变量</el-button>
+            <el-button type="primary" size="small" @click="setVariable2">设置环境变量</el-button>
+            <el-button type="primary" size="small" @click="querySql2">执行sql查询</el-button>
+          </div>
         </el-menu-item-group>
       </el-sub-menu>
       <!-- 请求头 -->
@@ -421,12 +541,23 @@ export default {
         </template>
         <el-menu-item-group>
           <AceEdit width="70%"
+                   height="350px"
                    v-model="this.caseInfo.pro_script"
                    lang="python"
                    theme="chrome"
                    :readOnly='false'
           ></AceEdit>
-          <div class="script_button"></div>
+          <div class="script_button" style="margin-top: -160px">
+            <el-button type="primary" size="small" @click="getToolFunc">调用工具函数</el-button>
+            <el-button type="primary" size="small" @click="getVariable">获取变量</el-button>
+            <el-button type="primary" size="small" @click="setVariable">设置环境变量</el-button>
+            <el-button type="primary" size="small" @click="querySql">执行sql查询</el-button>
+            <el-button type="primary" size="small" @click="jsonPathExtract">jsonpath提取</el-button>
+            <el-button type="primary" size="small" @click="regexExtract">正则提取</el-button>
+            <el-button type="primary" size="small" @click="statusCodeAssert">响应状态码断言</el-button>
+            <el-button type="primary" size="small" @click="responseBodyAssertEqual">响应体断言(相等)</el-button>
+            <el-button type="primary" size="small" @click="responseBodyAssertIn">响应体断言(包含)</el-button>
+          </div>
         </el-menu-item-group>
       </el-sub-menu>
     </el-menu>
@@ -445,7 +576,7 @@ export default {
       </el-icon>
       保存
     </el-button>
-    <el-button type="warning" style="margin-left: 10px" @click="deleteCase">
+    <el-button type="warning" style="margin-left: 10px" @click="deleteCase" v-if="init==unll">
       <el-icon>
         <DeleteFilled/>
       </el-icon>
@@ -489,12 +620,18 @@ export default {
 <style scoped>
 /* 前后置脚本旁边的按钮 */
 .script_button {
-  float: right;
   height: 100px;
   width: 12vw;
-  margin-right: 9vw;
-  background: #30e3ca;
+  margin-left: 70%;
   transform: translateY(-220px);
+  margin-top: -30px;
+}
+
+.script_button button {
+  margin: 0px 10px;
+  padding-top: 10px;
+  margin-top: 5px;
+  width: 80%;
 }
 
 .button-container {

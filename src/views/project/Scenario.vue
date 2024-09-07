@@ -1,4 +1,5 @@
 <script>
+
 import {VueDraggableNext} from 'vue-draggable-next'
 import {ElMessage, ElMessageBox} from "element-plus";
 import {mapState} from "vuex";
@@ -11,13 +12,13 @@ import caseNameSVG from "@/assets/testcase/caseNameSVG.vue";
 import assertSVG from "@/assets/testcase/assertSVG.vue";
 import requestBodySVG from "@/assets/testcase/requestBodySVG.vue";
 import RunResult from "@/components/RunResult.vue"
-
+import AddCaseForm from "@/components/AddCaseForm.vue";
 export default {
   components: {
     requestBodySVG, assertSVG, caseNameSVG, AceEdit, requestParamsSVG, apiInfoSVG, scriptSVG,
     draggable: VueDraggableNext,
     SelectionStep,
-    RunResult
+    RunResult,AddCaseForm
 
   },
   computed: {
@@ -42,6 +43,9 @@ export default {
       // 编辑步骤
       editStepForm: {},
       openMenus: ["1", "2", "6"],
+
+      editCaseId:null,
+      interface_id:"",
 
       // 运行结果抽屉
       apiRundRawer :false,
@@ -197,8 +201,10 @@ export default {
         this.scene_info.steps.splice(index, 1);
       }
     },
-    editStep(id) {
+    editStep(id,interface_id) {
       this.editStepDrawer = true
+      this.editCaseId = id
+      this.interface_id = interface_id
       this.$api.queryCaseInfo(id).then(resp => {
         this.editStepForm = resp.data.data
       })
@@ -359,7 +365,7 @@ export default {
                     {{ item.case_name }}
                   </div>
                   <div class="but">
-                    <el-button type="primary" size="small" @click="editStep(item.case_id)">编辑</el-button>
+                    <el-button type="primary" size="small" @click="editStep(item.case_id,item.interface_id)">编辑</el-button>
                     <el-button type="danger" size="small" @click="deleteStep(item.case_id)">删除</el-button>
                   </div>
                 </el-menu-item>
@@ -385,178 +391,14 @@ export default {
   </el-drawer>
 
   <!-- 编辑步骤抽屉 -->
-  <el-drawer v-model="editStepDrawer" :title="'编辑步骤-'+editStepForm.case_name" :with-header="true">
-    <div style=" max-height: calc(100vh - 150px); overflow-y: auto;">
-      <el-menu
-          class="el-menu-demo"
-          style="width: 100%;"
-          :default-openeds="openMenus"
-      >
-        <!--  API信息 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="1">
-          <template #title>
-            <el-icon>
-              <apiInfoSVG/>
-            </el-icon>
-            <span>API信息</span>
-          </template>
-          <el-menu-item-group>
-            <el-main style="margin-top: -25px">
-              <el-input
-                  style="max-width: 999px"
-                  :placeholder="editStepForm.path"
-                  disabled
-              >
-                <template #prepend>
-                  <el-select
-                      :placeholder="editStepForm.method"
-                      size="large"
-                      style="width: 160px"
-                      disabled
-                  >
-                    <el-option
-                        :label="editStepForm.method"
-                        :value="editStepForm.method"
-                    />
-                  </el-select>
-                </template>
-              </el-input>
-            </el-main>
-          </el-menu-item-group>
-        </el-sub-menu>
-        <!-- 用例名称 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="2">
-          <template #title>
-            <el-icon>
-              <caseNameSVG/>
-            </el-icon>
-            <span>用例名称</span>
-          </template>
-          <el-menu-item-group>
-            <el-main style="margin-top: -25px">
-              <el-input
-                  v-model="editStepForm.case_name"
-                  style="max-width: 999px"
-                  placeholder="用例名称"
-                  disabled
-              >
-                <template #prepend>用例名称</template>
-              </el-input>
-            </el-main>
-          </el-menu-item-group>
-        </el-sub-menu>
-        <!-- 前置脚本 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="3">
-          <template #title>
-            <el-icon>
-              <scriptSVG/>
-            </el-icon>
-            <span>前置脚本</span>
-          </template>
-          <el-menu-item-group>
-            <AceEdit width="350px"
-                     v-model="editStepForm.pre_script"
-                     lang="python"
-                     theme="chrome"
-                     :readOnly='false'
-            ></AceEdit>
-            <div class="script_button"></div>
-          </el-menu-item-group>
-        </el-sub-menu>
-        <!-- 请求头 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="4">
-          <template #title>
-            <el-icon>
-              <request-body-s-v-g/>
-            </el-icon>
-            <span>请求头</span>
-          </template>
-          <el-menu-item-group>
-            <AceEdit style="height:250px"
-                     width="450px"
-                     v-model="editStepForm.headers"
-                     lang="json"
-                     theme="chrome"
-                     :readOnly='false'
-            ></AceEdit>
-          </el-menu-item-group>
-        </el-sub-menu>
-        <!-- 查询参数 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="5">
-          <template #title>
-            <el-icon>
-              <request-params-s-v-g/>
-            </el-icon>
-            <span>查询参数</span>
-          </template>
-          <el-menu-item-group>
-            <AceEdit style="height:250px"
-                     width="450px"
-                     v-model="editStepForm.params"
-                     lang="json"
-                     theme="chrome"
-                     :readOnly='false'
-            ></AceEdit>
-          </el-menu-item-group>
-        </el-sub-menu>
-        <!-- 请求体 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="6">
-          <template #title>
-            <el-icon>
-              <request-body-s-v-g/>
-            </el-icon>
-            <span>请求体</span>
-          </template>
-          <el-menu-item-group>
-            <AceEdit style="height:250px"
-                     width="450px"
-                     v-model="editStepForm.body"
-                     lang="json"
-                     theme="chrome"
-                     :readOnly='false'
-            ></AceEdit>
-          </el-menu-item-group>
-        </el-sub-menu>
-        <!-- 后置&断言脚本 -->
-        <el-divider style="margin: 5px 0"/>
-        <el-sub-menu index="7">
-          <template #title>
-            <el-icon>
-              <assert-s-v-g/>
-            </el-icon>
-            <span>后置&断言脚本</span>
-          </template>
-          <el-menu-item-group>
-            <AceEdit width="350px"
-                     v-model="editStepForm.pro_script"
-                     lang="python"
-                     theme="chrome"
-                     :readOnly='false'
-            ></AceEdit>
-            <div class="script_button"></div>
-          </el-menu-item-group>
-        </el-sub-menu>
-      </el-menu>
-    </div>
-    <el-divider style="margin: 1px 0"/>
-    <div class="button-container">
-      <el-button type="success" style="margin-left: 10px" @click="updateStep">
-        <el-icon>
-          <Checked/>
-        </el-icon>
-        更新用例
-      </el-button>
-    </div>
+  <el-drawer v-model="editStepDrawer" :title="'编辑步骤-'+editStepForm.case_name" :with-header="true" width="400px">
+  <AddCaseForm :selectTestCaseId="this.editCaseId" :interface_id="this.interface_id" :init="1" ></AddCaseForm>
   </el-drawer>
 
+
+
   <!-- 运行结果抽屉 -->
-  <el-drawer v-model="apiRundRawer" title="执行结果" :with-header="true" width="20%">
+  <el-drawer v-model="apiRundRawer" :title="'执行结果-'+scene_info.scene_name" :with-header="true" width="20%">
     <RunResult :runResult="runResult"></RunResult>
   </el-drawer>
 </template>
@@ -584,7 +426,6 @@ export default {
 
 .case {
   width: 100%;
-  //margin-left: 20px;
 }
 
 .but {
