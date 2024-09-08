@@ -11,7 +11,7 @@ import AceEdit from "@/components/AceEdit.vue";
 import {ElMessage} from 'element-plus';
 
 export default {
-  props: ['selectTestCaseId', 'addCaseForApiId', "init", "interface_id"],
+  props: ['selectTestCaseId', 'addCaseForApiId', "init", ],
   computed: {
     ...mapState(['activationEnvInfo']),
     formattedRunTime() {
@@ -85,7 +85,7 @@ export default {
   },
   data() {
     return {
-      openMenus: ['1', '2', '5', '6'],
+      openMenus: ['1', '2', '3', '7'],
       // 接口请求方法枚举值
       apiMethods: [
         {value: 'get', label: 'GET'},
@@ -285,7 +285,7 @@ export default {
       //   获取工具函数
       this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
           + "# 调用工具函数" + "\n" +
-          "global_func.函数名"
+          "返回值=global_func.函数名"
     },
     getVariable() {
       //   获取变量

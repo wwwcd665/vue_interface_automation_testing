@@ -392,6 +392,7 @@ export default {
 
   <!-- 编辑步骤抽屉 -->
   <el-drawer v-model="editStepDrawer" :title="'编辑步骤-'+editStepForm.case_name" :with-header="true" width="400px">
+<!--  :init="1" 代表场景页面编辑用例  -->
   <AddCaseForm :selectTestCaseId="this.editCaseId" :interface_id="this.interface_id" :init="1" ></AddCaseForm>
   </el-drawer>
 
