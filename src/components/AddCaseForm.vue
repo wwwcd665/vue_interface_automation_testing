@@ -13,7 +13,7 @@ import {ElMessage} from 'element-plus';
 export default {
   props: ['selectTestCaseId', 'addCaseForApiId', "init", ],
   computed: {
-    ...mapState(['activationEnvInfo']),
+    ...mapState(['activationEnvInfo','pro']),
     formattedRunTime() {
       return this.apiRunResult.run_time.toFixed(2);
     },
@@ -117,7 +117,8 @@ export default {
     // 获取环境信息
     queryEnvInfo() {
       const envID = this.activationEnvInfo.envid
-      const peojectID = this.activationEnvInfo.projectid
+      const peojectID = this.pro.project_id
+      console.log("123213queryEnvInfo:", envID,peojectID)
       this.$api.queryEnvInfo(envID,peojectID).then(resp => {
         if (resp.data.code == 200) {
           this.envList = resp.data.data
