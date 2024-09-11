@@ -129,7 +129,8 @@ export default {
     async switchEnvInfo(id) {
       this.envInfoID = id
       this.envInfo.envname = ''
-      const res = await this.$api.queryEnvInfo(id)
+      const projectID = this.pro.project_id
+      const res = await this.$api.queryEnvInfo(id,projectID)
       if (res.data.code == 200 && res.data.data) {
         this.envInfo = res.data.data
 
@@ -157,7 +158,8 @@ export default {
         dbuser: this.envInfo.dbuser,
         dbpassword: this.envInfo.dbpassword,
         variables: this.envInfo.variables,
-        tool_func: this.envInfo.tool_func
+        tool_func: this.envInfo.tool_func,
+        project_id: this.pro.project_id
       }
         // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(params, (key, value) => {

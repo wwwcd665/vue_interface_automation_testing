@@ -54,8 +54,8 @@ export default {
     delEnvList(parmas) {
         return http.delete("/pro/envs" + "?envid=" + parmas)
     },
-    queryEnvInfo(params) {
-        return http.get("/pro/env" + "?envid=" + params)
+    queryEnvInfo(envID,projectId) {
+        return http.get("/pro/env" + "?envid=" + envID+"&projectid="+projectId)
     },
     saveEnvInfo(params) {
         return http.post("/pro/env", params)

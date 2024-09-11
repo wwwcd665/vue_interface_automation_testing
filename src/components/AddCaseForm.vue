@@ -117,7 +117,8 @@ export default {
     // 获取环境信息
     queryEnvInfo() {
       const envID = this.activationEnvInfo.envid
-      this.$api.queryEnvInfo(envID).then(resp => {
+      const peojectID = this.activationEnvInfo.projectid
+      this.$api.queryEnvInfo(envID,peojectID).then(resp => {
         if (resp.data.code == 200) {
           this.envList = resp.data.data
           this.caseInfo.headers = resp.data.data.headers
