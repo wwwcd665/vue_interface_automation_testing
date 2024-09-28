@@ -287,7 +287,7 @@ export default {
       //   获取工具函数
       this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
           + "# 调用工具函数" + "\n" +
-          "返回值=global_func.函数名"
+          "返回值=函数名(参数)"
     },
     getVariable() {
       //   获取变量
@@ -342,7 +342,7 @@ export default {
       //   前置脚本 获取工具函数
       this.caseInfo.pre_script = this.caseInfo.pre_script + "\n"
           + "# 调用工具函数" + "\n" +
-          "global_func.函数名"
+          "返回值=函数名(参数)"
     },
     getVariable2() {
       //   前置脚本 获取变量
