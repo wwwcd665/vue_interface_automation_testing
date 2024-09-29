@@ -11,9 +11,9 @@ import AceEdit from "@/components/AceEdit.vue";
 import {ElMessage} from 'element-plus';
 
 export default {
-  props: ['selectTestCaseId', 'addCaseForApiId', "init", ],
+  props: ['selectTestCaseId', 'addCaseForApiId', "init",],
   computed: {
-    ...mapState(['activationEnvInfo','pro']),
+    ...mapState(['activationEnvInfo', 'pro']),
     formattedRunTime() {
       return this.apiRunResult.run_time.toFixed(2);
     },
@@ -118,15 +118,22 @@ export default {
     queryEnvInfo() {
       const envID = this.activationEnvInfo.envid
       const peojectID = this.pro.project_id
-      console.log("123213queryEnvInfo:", envID,peojectID)
-      this.$api.queryEnvInfo(envID,peojectID).then(resp => {
+      console.log("123213queryEnvInfo:", envID, peojectID)
+      this.$api.queryEnvInfo(envID, peojectID).then(resp => {
+
         if (resp.data.code == 200) {
           this.envList = resp.data.data
           this.caseInfo.headers = resp.data.data.headers
         } else {
           ElMessage.error("获取环境信息异常")
         }
-      })
+
+
+      }).catch(
+          error => {
+            ElMessage.error("未选择环境或获取环境信息异常")
+          }
+      )
     },
     // 判断新增用例还是更新用例
     operationCase() {
@@ -149,10 +156,10 @@ export default {
         "headers": this.caseInfo.headers,
         "method": this.caseInfo.method,
         "path": this.caseInfo.path,
-        "project_id": this.addCaseForApiId?.project_id ||""
+        "project_id": this.addCaseForApiId?.project_id || ""
       }
-      if(this.init=='1'){
-        data.interface_id=this.caseInfo.interface_id
+      if (this.init == '1') {
+        data.interface_id = this.caseInfo.interface_id
         data.project_id = this.caseInfo.project_id
       }
       // 确保没有值的字段也会传递给后端
@@ -186,10 +193,10 @@ export default {
         "headers": this.caseInfo.headers,
         "method": this.caseInfo.method,
         "path": this.caseInfo.path,
-        "project_id": this.addCaseForApiId?.project_id ||""
+        "project_id": this.addCaseForApiId?.project_id || ""
       }
-      if(this.init=='1'){
-        data.interface_id=this.caseInfo.interface_id
+      if (this.init == '1') {
+        data.interface_id = this.caseInfo.interface_id
         data.project_id = this.caseInfo.project_id
       }
       // 确保没有值的字段也会传递给后端
@@ -264,8 +271,8 @@ export default {
         "interface_id": this.addCaseForApiId?.interface_id || "",
         "env_id": this.activationEnvInfo.envid
       }
-      if(this.init=='1'){
-        data.interface_id=this.caseInfo.interface_id
+      if (this.init == '1') {
+        data.interface_id = this.caseInfo.interface_id
       }
       // 确保没有值的字段也会传递给后端
       const jsonData = JSON.stringify(data, (key, value) => {
@@ -287,7 +294,7 @@ export default {
       //   获取工具函数
       this.caseInfo.pro_script = this.caseInfo.pro_script + "\n"
           + "# 调用工具函数" + "\n" +
-          "返回值=global_func.函数名"
+          "返回值=函数名(参数)"
     },
     getVariable() {
       //   获取变量
@@ -342,7 +349,7 @@ export default {
       //   前置脚本 获取工具函数
       this.caseInfo.pre_script = this.caseInfo.pre_script + "\n"
           + "# 调用工具函数" + "\n" +
-          "global_func.函数名"
+          "返回值=函数名(参数)"
     },
     getVariable2() {
       //   前置脚本 获取变量
