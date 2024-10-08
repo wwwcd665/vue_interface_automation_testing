@@ -77,8 +77,8 @@ export default {
         request_headers: '',
         request_params: '',
         request_body: '',
-        request_pre_script: '接口调试不支持',
-        request_post_script: '接口调试不支持',
+        request_pre_script: '接口调试不支持！',
+        request_post_script: '接口调试不支持！',
       },
       debugResponseInfo:''
     }
