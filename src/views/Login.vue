@@ -101,4 +101,5 @@ export default {
 .el-input__inner {
   text-align: left; /* 使输入框内文本左对齐 */
 }
+
 </style>
