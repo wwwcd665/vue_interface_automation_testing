@@ -258,6 +258,7 @@ export default {
       const jsonData = JSON.stringify(data, (key, value) => {
         return value === undefined || value === null ? "" : value;
       });
+      //todo 增加入参，获取页面字段数据
       this.$api.caseRun(jsonData).then(resp => {
         if (resp.data.code == 200) {
           this.apiRunResult = resp.data.data[0]
@@ -278,6 +279,7 @@ export default {
       const jsonData = JSON.stringify(data, (key, value) => {
         return value === undefined || value === null ? "" : value;
       });
+      //todo 增加入参，获取页面字段数据
       this.$api.caseRun(jsonData).then(resp => {
         if (resp.data.code == 200) {
           this.apiRunResult = resp.data.data[0]
@@ -468,7 +470,7 @@ export default {
           <el-icon>
             <scriptSVG/>
           </el-icon>
-          <span>前置脚本</span>
+          <span>前置脚本（原有注释不可删除）</span>
         </template>
         <el-menu-item-group>
           <AceEdit width="70%"
